@@ -31,45 +31,44 @@ def calculate_pixel(kernel, pixels, image_width, image_height, x, y):
 
 
 # Goes through every pixel of an image and modifies them with a kernel
-def convolve(image, output, kernel, weighted_average):
-    kernel_size = (kernel.shape[0] * kernel.shape[1])
+def convolve(image, output, kernel):
     draw = ImageDraw.Draw(output)
     pixels = image.load()
 
     for x in range(0, image.width):
         for y in range(0, image.height):
             rgb_sum = calculate_pixel(kernel, pixels, image.width, image.height, x, y)
-            if weighted_average:
-                rgb_sum = rgb_sum // kernel_size
             draw.point((x, y), (int(rgb_sum[0]), int(rgb_sum[1]), int(rgb_sum[2])))
 
 
 # Performs two convolutions with a separable filter that has identical
 # vertical and horizontal kernels
-def convolve_seperable(image, output, kernel, weighted_average):
+def convolve_seperable(image, output, kernel):
     tmp = Image.new("RGB", image.size)
-    convolve(image, tmp, kernel, weighted_average)
-    convolve(tmp, output, kernel.transpose(), weighted_average)
+    convolve(image, tmp, kernel)
+    convolve(tmp, output, kernel.transpose())
 
 
 # Performs two convolutions with a separable filter that has different
 # vertical and horizontal kernels
-def convolve_seperable_2(image, output, kernel_1, kernel_2, weighted_average):
+def convolve_seperable_2(image, output, kernel_1, kernel_2):
     tmp = Image.new("RGB", image.size)
-    convolve(image, tmp, kernel_1, weighted_average)
-    convolve(tmp, output, kernel_2, weighted_average)
+    convolve(image, tmp, kernel_1)
+    convolve(tmp, output, kernel_2)
 
 
 def main():
-    image = Image.open('frog1.jpg')
+    image = Image.open('frog2.jpg')
     output = Image.new("RGB", image.size)
 
-    #convolve(image, output, Kernel.box_blur_5, True)
-    convolve_seperable(image, output, Kernel.box_blur_5_1d, True)
-    # convolve_seperable_2(image, output, Kernel.sobel_1d, Kernel.sobel_1d_2, True)
+    # Use the kernels found in kernel.py
+
+    convolve(image, output, Kernel.emboss)
+    # convolve_seperable(image, output, Kernel.box_blur_5_1d)
+    # convolve_seperable_2(image, output, Kernel.sobel_1d_horizontal, Kernel.sobel_1d_vertical)
 
     output.show()
-    output.save("box_blur.jpg")
+    output.save("test.jpg")
 
 
 main()
