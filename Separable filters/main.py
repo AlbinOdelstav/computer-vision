@@ -63,9 +63,9 @@ def main():
 
     # Use the kernels found in kernel.py
 
-    convolve(image, output, Kernel.emboss)
+    # convolve(image, output, Kernel.emboss)
     # convolve_seperable(image, output, Kernel.box_blur_5_1d)
-    # convolve_seperable_2(image, output, Kernel.sobel_1d_horizontal, Kernel.sobel_1d_vertical)
+    convolve_seperable_2(image, output, Kernel.sobel_1d_horizontal, Kernel.sobel_1d_vertical)
 
     output.show()
     output.save("test.jpg")
