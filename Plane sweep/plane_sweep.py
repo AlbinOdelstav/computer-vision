@@ -1,28 +1,7 @@
 import sys, getopt
 import numpy as np
 from PIL import Image, ImageDraw
-
-
-def ssd(x, y, images, window_size):
-    window_half = int(window_size / 2)
-    window_list = []
-
-    for img in images:
-        if not (0 < x - window_half < img.shape[0] and x + window_half + 1 < img.shape[0]) \
-                or not (0 < y - window_half < img.shape[1] and y + window_half + 1 < img.shape[1]):
-            return None, None
-        window_list.append(img[x - window_half: x + window_half + 1, y - window_half: y + window_half + 1])
-
-    color_sum = np.zeros(shape=(window_size, window_size, 3))
-    for window in window_list:
-        color_sum += window
-    color_avg = color_sum / len(window_list)
-
-    color_sum = 0
-    for window in window_list:
-        error = np.sum((window - color_avg) ** 2)
-        color_sum += error
-    return color_sum, np.average(color_avg)
+from similarity_measures import ssd, sad
 
 
 def matrix_horizontal_shift(matrix, steps):
@@ -71,10 +50,11 @@ def main(argv):
     images_names = ["im0.jpg", "im1.jpg"]
     output_name = ""
     images = []
+    metric_function_name = "ssd"
     metric_function = ssd
 
     try:
-        opts, args = getopt.getopt(argv, "i:o:p:w:d:")
+        opts, args = getopt.getopt(argv, "i:p:w:d:f:o:")
     except getopt.GetoptError:
         print('plane_sweep.py -i <"left_image right_image"> -p <planes> -d <depth range> -f <function> -o <output>')
         sys.exit(2)
@@ -92,13 +72,21 @@ def main(argv):
             window_size = int(arg)
         elif opt in "-f":
             if str.lower(arg) == "ssd":
+                metric_function_name = "ssd"
                 metric_function = ssd
+            elif str.lower(arg) == "sad":
+                metric_function_name = "sad"
+                metric_function = sad
+            else:
+                print("Invalid function \"" + arg + "\"")
+                sys.exit(2)
 
     for image in images_names:
         images.append(Image.open(image))
 
     if output_name == "":
         output_name = str.split(images_names[0], ".")[0] + \
+                      "_" + str(metric_function_name) + \
                       "_p" + str(planes) + "_d" + \
                       str(depth_range) + "_w" + \
                       str(window_size) + ".png"
