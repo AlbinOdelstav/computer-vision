@@ -26,7 +26,7 @@ def calculate_pixel(kernel, pixels, image_width, image_height, x, y):
 def convolve(image, output, kernel):
     draw = ImageDraw.Draw(output)
     pixels = image.load()
-    for x in range(0, image.width):
-        for y in range(0, image.height):
+    for y in range(0, image.height):
+        for x in range(0, image.width):
             color_sum = calculate_pixel(kernel, pixels, image.width, image.height, x, y)
             draw.point((x, y), int(color_sum))
